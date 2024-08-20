@@ -9,45 +9,42 @@ const Gallary = () => {
   const [prompt, setPrompt] = useState<string>(''); //빈 문자열로 prompt로 초기화
 
   //이미지정보 목록 상태값 정의
-  const [fileList, setFileList] = useState<IBlogFile[]>([
-    {
-      article_id: 1,
-      file_id: 1,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트 1',
-      file_path: 'http://localhost:5000/ai/sample-1724137405649.png',
-      file_name: 'sample-1724137405649.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-    {
-      article_id: 2,
-      file_id: 2,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트 1',
-      file_path: 'http://localhost:5000/ai/sample-1724137405649.png',
-      file_name: 'sample-1724137405649.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-    {
-      article_id: 3,
-      file_id: 3,
-      title: 'dall-e-3',
-      contents: '사용자 프롬프트 1',
-      file_path: 'http://localhost:5000/ai/sample-1724137405649.png',
-      file_name: 'sample-1724137405649.png',
-      reg_member_id: 1,
-      reg_member_name: 'Eddy',
-    },
-  ]); //목록을 배열로 받나????????????????????????????
+  const [fileList, setFileList] = useState<IBlogFile[]>([]); //목록을 배열로 받나????????????????????????????
+
+  //최초로 화면이 렌더링되는 마운팅 시점(최초1회)에서 백엔드 API 호출하기
+  useEffect(() => {
+    //최초 화면이 표시되는 시점에 백엔드 API에서 이미지 목록을 가져오기
+    getBlogFiles();
+  }, []);
+
+  //백엔드에서 이미지 목록 데이터를 가져오는 비동기함수 기능정의 //함수정의는 그냥 function 하면 되는데 비동기로 할려고 async 붙임
+  //useEffect에서는 비동기함수(async)를 쓸 수가 없으므로 함수를 따로 만들어서 호출해야함
+  async function getBlogFiles() {
+    //function쓰면 화살표 함수 쓰면 안되는 거?????????????????????????
+    //fetch함수를 통해 백엔드 DALLE API 호출하기
+    const response = await fetch('http://localhost:5000/api/openai/all', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // body: JSON.stringify({
+      //   model,
+      //   prompt,
+      // }),   //프론트에서 보내는게 없으므로 필요없음
+    });
+
+    const resultData = await response.json(); //응답데이터를 JSON으로 변환
+    console.log('백엔드에서 전달해준 결과값 확인: ', resultData);
+
+    setFileList(resultData.data);
+  }
 
   //이미지 생성요청 함수
   const gernerateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); //기본동작 방지
 
     //fetch함수를 통해 백엔드 DALLE API 호출하기
-    const response = await fetch(' http://localhost:5000/api/openai/dalle', {
+    const response = await fetch('http://localhost:5000/api/openai/dalle', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,6 +57,9 @@ const Gallary = () => {
 
     const resultData = await response.json(); //응답데이터를 JSON으로 변환
     console.log('백엔드에서 전달해준 결과값 확인: ', resultData);
+
+    //파일목록 데이터 조회 출력하기 //최초로 로딩했을 때도 불러오지만 이미지를 새로 생성할때도 계속해서 불러와줌
+    await getBlogFiles();
   };
 
   return (
