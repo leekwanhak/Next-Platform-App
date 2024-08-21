@@ -72,10 +72,49 @@ const Chat = () => {
       //연결이 되면 작동할 기능을 구현하는 영역
       console.log('서버소켓과 연결되었습니다.');
     });
-  });
 
+    //disconnect 이벤트는 서버소켓이 끊어진경우 발생하는 이벤트
+    //서버와의 연결소켓이 끊어진 경우 처리할 기능을 핸들러함수에서 처리합니다.
+    //소켓 시스템 이벤트
+    socket.on('disconnect', () => {
+      console.log('서버소켓과 연결이 끊어졌습니다.');
+    });
+
+    //개발자 정의 클라이언트 소켓 이벤트 수신기 정의하기
+    //socket.on('클라이언트 이벤트 수신기명', 서버에서 전달해준 데이터를 받는함수정의);
+    socket.on('receiveAll', function (msg: IMessage) {
+      console.log('서버소켓에서 전달된 데이터 확인 - receiveAll: ', msg);
+      setMessageList(prev => [...prev, msg]); //messageList를 바꿔주려면 setMessageList를 사용하고 setter함수를 이용하여 UI를 갱신해줌?????????????????????????????????????????/
+    });
+
+    //해당 채팅 컴포넌트가 화면에서 사라질 때 (언마운팅시점)
+    //소켓관련 이벤트를 모두 제거해줘야합니다. 그렇지 않으면 메시지를 여러번 수신할 수 있음.
+    return () => {
+      //socket.off(클라이언트 이벤트 수신기명); //이벤트 제거
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('receiveAll');
+    };
+  }, []);
+
+  //웹소켓은 텍스트를 주고 받는 것 - json도 텍스트임(단일 객체), 더 많은 데이터를 담고 있는
+  //webRTC 영상, 음성, 파일 전송 가능 더 무거운 데이터를 전송할 때 사용
   //채팅 메시지 전송 이벤트 처리함수
-  const sendMessage = () => {};
+  const sendMessage = () => {
+    //채팅서버소켓(백엔드 서버)으로 메시지를 전송한다.
+
+    const msgData = {
+      member_id: memberId,
+      name: `사용자-${memberId.toString()}`,
+      profile: `http://localhost:5000/img/user${memberId.toString()}.png`,
+      message: message,
+      send_date: Date.now().toString(),
+    };
+
+    //socket.emit('백앤드 서버 이벤트명', 전송할데이터객체)
+    //채팅서버소켓으로 메시지 전송
+    socket.emit('broadcast', msgData);
+  };
 
   return (
     <div className="flex h-screen antialiased text-gray-800 mt-14 pb-10">

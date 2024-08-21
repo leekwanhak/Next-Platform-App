@@ -1,5 +1,3 @@
-import { LargeNumberLike } from 'crypto';
-
 export interface ICreateBlog {
   title: string;
   contents: string;

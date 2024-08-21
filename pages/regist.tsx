@@ -28,13 +28,14 @@ const Regist = () => {
     //...member란 현재 member상수의 복사본 객체를 생성한다는 의미
     //[]란 동적 속성(ECMA문법- 있으면 쓰고 없으면 만드는 것)
     //e.target은 Change 이벤트가 발생한 UI요소를 말한다. -> name에 마우스 커버를 놓고 입력을 하고 있으면 name 인풋박스에 onChange 이벤트가 발생한다.
-    //[e.target.name - 이벤트가 발생한 요소의 name 속성값]:e.target.value - 이벤트가 발생한 요소의 =======================================================================
+    //[e.target.name - 이벤트가 발생한 요소의 name 속성값]:e.target.name(이벤트가 발생한 요소의 현재 입력 value값)
     setMember({ ...member, [e.target.name]: e.target.value });
   };
 
   //회원가입 버튼 클릭시 신규 회원정보 백엔드 처리함수
   const registSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    //Form Submit 이벤트가 호출되면 어떤 식으로든 화면을 리프레시하는 기능이 작동되므로 해당 form submit 이벤트를 =================
+    //e.preventDefault();Form Submit이벤트가 호출되면 어떤식으로든 화면을 리프레시하는 기능이 작동되므로 해당 form submit이벤트를 취소하여
+    //화면이 리프레시되는 현상을 방지한다.
 
     //?????????????????????????????????????????????프론트에서는 껌벅거림이 없어야한다???????????????????????????????????????????????????????????????????
     e.preventDefault();
@@ -142,7 +143,7 @@ const Regist = () => {
             <div>
               <div className="flex items-center justify-between">
                 <label
-                  htmlFor="passnameword_cofirm"
+                  htmlFor="name"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Name

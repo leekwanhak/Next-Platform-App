@@ -12,10 +12,10 @@ const BlogCreate = () => {
 
   //최초 화면 컴포넌트 렌더링(마운팅) 시점에 로컬스트리지 내에 토큰값 존재여부 체크 후
   //토큰이 없으면 로그인하고 오라고 페이지 리디렉션처리하기
+
   useEffect(() => {
     //서버 인증 JWT 사용자 인증토큰이 스토리지에 없으면 로그인하고 오라고 처리
     if (localStorage.getItem('token') == undefined) {
-      alert('로그인이 필요한 서비스입니다.');
       router.push('/login');
     }
   }, []);

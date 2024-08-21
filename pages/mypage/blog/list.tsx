@@ -1,33 +1,33 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
+
 import { IBlog } from '@/interfaces/blog';
 import axios from 'axios';
 
-// const BlogList = ({ blogs }: { blogs: IBlog[] }) => {
-//-> SSR방식으로 최초 화면 렌더링 처리시 사용
 const BlogList = () => {
+  // 아래 컴포넌트는 SSR방식으로 최초 화면 렌더링 처리시 사용
+  // const BlogList = ({ blogs }: { blogs: IBlog[] }) => {
   const router = useRouter();
 
-  // //게시글 목록 데이터 상태 정의
-  // //ssr에서는 필요없고 csr에서만 필요있음
+  //CSR-Cient Side Rendering시에만 사용 : 게시글 목록 데이터 상태 정의
   const [blogs, setBlogs] = useState<IBlog[]>([]);
 
-  // // //CSR방식으로 최초 화면 렌더링(마운트)===============================================================================================================
+  //CSR방식으로 최초 화면 렌더링(마운트)시 웹브라우저 서버 RESTFUL API 호출 게시글 목록 조회 바인딩처리하기
   useEffect(() => {
     getBlogList();
   }, []);
 
+  //비동기 방식으로 백엔드 게시글 목록 데이터 호출함수
   async function getBlogList() {
     try {
       const res = await axios.get('http://localhost:5000/api/article/list');
-
       if (res.data.code == 200) {
         setBlogs(res.data.data);
       } else {
-        console.error('블로깅 목록 조회 에러:', res.data.msg);
+        console.error('서버 에러발생...', res.data.msg);
       }
     } catch (err) {
-      console.error('블로깅 목록 조회 에러:', err);
+      console.error('백엔드 API 호출에러발생...');
     }
   }
 
@@ -39,7 +39,7 @@ const BlogList = () => {
             블로깅 목록
           </h1>
           <p className="mt-2 text-sm text-gray-700">
-            여러분들이 가지고 있는 관심주제에 대해 블로깅을 작성해 보세요.
+            여러분들이 가지고 있는 관심주제에 대해 블로그를 직접 작섷해 보세요.
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -118,11 +118,11 @@ const BlogList = () => {
   );
 };
 
+//SSR방식으로 최초 화면 렌더링시 서버에서 데이터를 조회하고 서버에서 HTML소스를 생성해서 가져온다.
 // export const getServerSideProps = async () => {
-//   //백엔드에서 게시글 데이터를 조회해와서 해당 컴포넌트의 props데이터 파라미터 형식으로 전달한다.
+//백엔드에서 게시글 데이터를 조회해와서 해당 컴포넌트의 props데이터 파라미터 형식으로 전달한다.
 //   const res = await fetch('http://localhost:5000/api/article/list');
 //   const result = await res.json();
-
 //   return { props: { blogs: result.data } };
 // };
 
