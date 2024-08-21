@@ -1,9 +1,17 @@
 //사용자간 기초 채팅기능구현 컴포넌트
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import { useRouter } from 'next/router';
 
 import { IMessage } from '@/interfaces/message';
 
+//채팅 클라이언트 socket객체 참조하기
+import { socket } from '@/library/socket';
+
 const Chat = () => {
+  //라우터 객체 생성
+  const router = useRouter();
+
   //현재 사용자 고유번호 상태값 정의
   const [memberId, setMemberId] = useState<number>(1); //현재 사용자 고유번호 상태값 정의(현재 사용자가 1번이라고 가정)
 
@@ -35,6 +43,37 @@ const Chat = () => {
     },
   ]);
 
+  //최초 1회 화면이 렌더링되는 시점(마운팅되는 시점)에 실행되는 useEffect 함수
+  //프로젝트 루트에 next.config.mjs파일 내 reactStrictMode(엄격모드)값을 false로 변경해야만 1회만 작동함
+  //useEffect 훅은 CSR환경에서 작동되고 useRouter 훅은 SSR/CSR순서로 2번작동됨.-> 서로 궁합이 맡지 않아서 사용자 고유번호가 콘솔에 undefined로 찍힘
+  //useEffect훅에서 useRouter훅 이용해 URL 키값이 추출안되는 문제는 useRouter.isReady값을 이용해 해결가능
+  //useRouter.isReady값이 기본은 false->true로 변경되는 시점에 관련 기능 구현하면됨.. //useRouter를 쓸 수 있는지 없는지를 알려주는 것임 최초에는 false였다가 true로 바뀜
+
+  useEffect(() => {
+    console.log('현재 URL주소에서 사용자 고유번호 추출하기: ', router.query.id);
+
+    //URL주소를 통해 사용자 고유번호가 전달된 경우에만 실행
+    if (router.query.id !== undefined) {
+      //현재 사용자 고유번호 상태값 설정해주기
+      setMemberId(Number(router.query.id)); //문자열로 넘어오는 데이터값을 Number()함수를 이용하여 숫자열로 바꿔줌
+    }
+  }, [router.isReady]); //빈배열일 때는 최초 마운트시에 실행되는 것이고 배열안에 값이 들어 있으면 그 값이 변경될 때마다 실행됨(false->true로 변경되는 시점에 실행됨) //1.최초 실행 undefined, 2. router값이 변경될 때2번(파라미터, 쿼리)
+
+  //최초 1회 화면이 렌더링되는 시점(마운팅되는시점)에 실행되는 useEffect함수
+  //=============================================================================================================================================
+  useEffect(() => {
+    //최초 화면이 렌더링되는 시점(최초1회)에 서버소켓 연결하기
+    socket.connect(); //클라이언트 소켓과 서버 소켓이 연결을 시도함
+
+    //서버소켓과 연결이 완료되면 실행되는 이벤트처리함수
+    //서버 소켓과 연결이 완료되면 자동으로 client 소켓에서 connect 이벤트가 실행되고
+    //connect이벤트가 실행되면 처리할 이벤트 처리할 기능 구현
+    socket.on('connect', () => {
+      //연결이 되면 작동할 기능을 구현하는 영역
+      console.log('서버소켓과 연결되었습니다.');
+    });
+  });
+
   //채팅 메시지 전송 이벤트 처리함수
   const sendMessage = () => {};
 
@@ -60,6 +99,9 @@ const Chat = () => {
                           </div>
                           <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                             <div>{msg.message}</div>
+                            <div className="absolute w-[200px] text-right text-xs bottom-0 right-0 -mb-5 text-gray-500">
+                              {msg.name} {msg.send_date}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -75,6 +117,9 @@ const Chat = () => {
                           </div>
                           <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                             <div>{msg.message}</div>
+                            <div className="absolute w-[200px] text-xs bottom-0 left-0 -mb-5 text-gray-500">
+                              {msg.name} {msg.send_date}
+                            </div>
                           </div>
                         </div>
                       </div>
