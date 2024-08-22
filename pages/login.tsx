@@ -1,13 +1,20 @@
 //로그인 화면 컴포넌트
 
-import { useState } from 'react';
-
+import { useState, useContext } from 'react';
 import { useRouter } from 'next/router';
+
+//전역컨텍스트 참조하기
+import { GlobalContext } from '@/library/globalContext';
+import { IGlobalData, ILoginMember } from '@/interfaces/global';
 
 //로그인 페이지 컴포넌트
 const Login = () => {
   //라우팅 객체 생성하기
   const router = useRouter();
+
+  //전역 상태값 변경을 위한 컨텍스트 객체 생성
+  //전역 상태값을 불러오거나 값을 변경할 수 있게 변수와 세터함수 참조하기
+  const { globalData, setGlobalData } = useContext(GlobalContext);
 
   //로그인 사용자 정보 상태관리 데이터 초기화
   const [member, setMember] = useState({
@@ -20,10 +27,9 @@ const Login = () => {
     setMember({ ...member, [e.target.name]: e.target.value });
   };
 
-  //로그인 버튼 클릭시 로그인 정보 백엔드 API 전달하여 JWT토큰 정보를 받아온다.
+  //로그인 버튼 클릭시 로그인 정보 백엔드 API전달하여 JWT토큰정보를 받아온다.
   const loginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     //백엔드 Login RESTFul API를 호출한다.
 
     //Case1: 웹브라우저 자바스크립트엔진에 탑재되어 있는 fetch함수를 통해 백엔드 RESTFul Login API를 호출한다.
@@ -41,7 +47,10 @@ const Login = () => {
       if (result.code == 200) {
         console.log('정상적으로 로그인 완료!!!!!');
         //Step1:백엔드에서 제공한 JWT토큰값 웹브라우저의 localStorage 저장소에 저장
-        localStorage.setItem('token', result.data);
+        localStorage.setItem('token', result.data.token);
+
+        //로그인한 사용자 정보를 전역상태의 member속성값으로 변경 저장하기
+        setGlobalData({ ...globalData, member: result.data.member });
 
         //Step2:추후 Context API의 전역데이터로 사용자 정보 저장
 
@@ -52,6 +61,7 @@ const Login = () => {
           alert('해당 메일주소가 존재하지 않습니다.');
           return false;
         }
+
         if (result.code == 400 && result.msg == 'InCorrectPasword') {
           alert('사용자 암호가 일치하지 않습니다.');
           return false;
@@ -63,7 +73,7 @@ const Login = () => {
         }
       }
     } catch (err) {
-      console.error('백엔드 API 호출에러 발생: ', err);
+      console.error('백엔드 API 호출에러 발생:', err);
     }
   };
 
@@ -145,7 +155,7 @@ const Login = () => {
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                로그인
+                Login
               </button>
             </div>
           </form>

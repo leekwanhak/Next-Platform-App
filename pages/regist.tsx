@@ -1,5 +1,5 @@
 //신규회원가입 페이지 컴포넌트
-//호출주소: http://localhost:3003/regist
+//호출주소 : http://localhost:3003/regist
 
 //화면상에 데이터 관리를 위한 useState 훅 참조하기
 import { useState } from 'react';
@@ -8,10 +8,12 @@ import { useState } from 'react';
 //내가 원하는 페이지 컴포넌트로 보내줄 수 있음
 import { useRouter } from 'next/router';
 
+//신규회원 가입정보 인터페이스 타입 참조하기
 import { IEntryMember } from '@/interfaces/member';
 
+//회원가입 페이지 컴포넌트
 const Regist = () => {
-  //useRouter 훅 객체 생성하기
+  //useRouter훅 객체 생성하기
   const router = useRouter();
 
   //신규 회원가입 정보 상태 데이터 정의 및 값 초기화처리
@@ -34,7 +36,7 @@ const Regist = () => {
 
   //회원가입 버튼 클릭시 신규 회원정보 백엔드 처리함수
   const registSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    //e.preventDefault();Form Submit이벤트가 호출되면 어떤식으로든 화면을 리프레시하는 기능이 작동되므로 해당 form submit이벤트를 취소하여
+    // e.preventDefault();Form Submit이벤트가 호출되면 어떤식으로든 화면을 리프레시하는 기능이 작동되므로 해당 form submit이벤트를 취소하여
     //화면이 리프레시되는 현상을 방지한다.
 
     //?????????????????????????????????????????????프론트에서는 껌벅거림이 없어야한다???????????????????????????????????????????????????????????????????
@@ -64,7 +66,7 @@ const Regist = () => {
         //router.push('이동할 주소(도메인주소는 제외)') - 프론트엔드 라우팅 주소 이동처리
         router.push('/login');
       } else {
-        console.log('백엔드 서버 에러발생: ', result.msg);
+        console.log('백엔드 서버 에러발생:', result.msg);
         if (result.msg == 'ExistMember' && result.code == 400) {
           alert('동일한 메일주소가 존재합니다.');
           return false;

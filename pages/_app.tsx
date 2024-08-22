@@ -4,6 +4,9 @@ import '@/styles/globals.css';
 // Next.js에서 제공하는 AppProps 타입을 불러옵니다.
 import type { AppProps } from 'next/app';
 
+//전역상태관리 프로바이더 컴포넌트 참조하기
+import GlobalProvider from '@/library/globalContext';
+
 //개발자 정의 컴포넌트 참조하기
 import MainLayout from '@/components/main-layout';
 import NoneLayout from '@/components/none-layout';
@@ -23,6 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   let layoutMode: string = 'general';
   if (currentPath === '/login' || currentPath === '/regist') {
+    //indexOf 메서드는 문자열에서 특정 문자열('/mypage')이 처음으로 나타나는 위치의 인덱스를 반환합니다. 만약 해당 문자열이 존재하지 않으면 -1을 반환합니다.
     layoutMode = 'auth';
   } else if (currentPath.indexOf('/mypage') > -1) {
     layoutMode = 'mypage';
@@ -83,6 +87,6 @@ export default function App({ Component, pageProps }: AppProps) {
     //   )}
     // </>
 
-    <>{renderLayoutOnPath()}</>
+    <GlobalProvider>{renderLayoutOnPath()}</GlobalProvider>
   );
 }
